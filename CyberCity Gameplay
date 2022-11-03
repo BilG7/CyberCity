@@ -1,0 +1,163 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct ville
+{
+    int nbHabitations;
+    int cyberFlouz;
+    int cptHabitants;
+    int cptEau;
+    int cptElec;
+}vi;
+
+typedef struct construc
+{
+    int type;    //1 : les routes   2 : les habitations  3 : industrie
+    int coutConstr;
+    //int x_screen, y_screen;
+}constr;
+
+typedef struct industrie
+{
+    int type; //a : elec   b : eau
+    //int capacite; //5000
+}ind;
+
+typedef struct habitation
+{
+    int type;
+    int capacite;
+    int compteurDepart;
+    int cmp;
+    int feu; //en 1 : feu    0 : eteint
+}hab;
+
+int verifierRoute(int x_placement, int y_placement, int **matmat)
+{
+    if((matmat[x_placement+1][y_placement]==1) || (matmat[x_placement-1][y_placement]==1) || (matmat[x_placement][y_placement+1]==1) || (matmat[x_placement][y_placement-1]==1))
+    {
+        return 1;
+    }
+    else{
+        printf("pb");
+        return 0;
+    };
+}
+
+void demanderPlacement(int* x_placement, int* y_placement)
+{
+    printf("choix de x : ");                  //enleve les car x placement et y placement sont des pointeur
+    scanf("%d", x_placement);
+    printf("choix de y : ");
+    scanf("%d", y_placement);
+}
+
+void confirmerPlacement(int x, int y, int **matmat, int type, vi* vivi)
+{
+    constr construire;
+    if(matmat[x][y]==0)
+    {
+        if(verifierRoute(x,y,matmat)==1)
+        {
+            matmat[x][y]=type;
+        if(type==1)
+        {
+            vivi->cyberFlouz = vivi->cyberFlouz-10;
+        }
+        else if(type==2)
+        {
+            vivi->nbHabitations++;
+            vivi->cyberFlouz = vivi->cyberFlouz-1000;
+        }
+        else if(type==4 || type==5)
+        {
+            vivi->cyberFlouz = vivi->cyberFlouz-100000;
+        }}
+    }
+    else{
+        printf("pas possible\n");
+    }
+}
+
+int main()
+{
+    int i,j;
+    int **essai_matrice;
+    essai_matrice=(int**)malloc(sizeof(int*)*10);
+    int x=0;
+    int y=0;
+    vi vivi;
+    constr construire;
+    hab* habitations=(hab*)malloc(sizeof(hab));
+    vivi.nbHabitations=0;
+    ind industrie;
+    vivi.cyberFlouz=500000;
+    for(i=0;i<10;i++)
+    {
+        essai_matrice[i]=(int*)malloc(sizeof(int)*10);
+    }
+    for( i=0; i<10; i++)
+    {
+        for( j=0; j<10; j++)
+        {
+            essai_matrice[i][j]=0;
+        }
+    }
+    essai_matrice[6][5]=1;
+    for( i=0; i<10; i++)
+    {
+        for( j=0; j<10; j++)
+        {
+            printf(" %d ", essai_matrice[i][j]);
+        }
+        printf("\n");
+    }
+    do{
+        printf("batir : 1.route 2. habitation 3. industrie");
+        scanf("%d", &construire.type);
+        if(construire.type==1)
+        {
+            demanderPlacement(&x,&y);              //mettre des esperluette pour envoyer l'adresse
+            confirmerPlacement(x, y, essai_matrice,construire.type, &vivi);
+        }
+        else if(construire.type==2)
+        {
+            demanderPlacement(&x,&y);              //mettre des esperluette pour envoyer l'adresse
+            confirmerPlacement(x, y, essai_matrice,construire.type, &vivi);
+           // habitation realloue ton tableau en mettant
+            realloc(habitations, sizeof(hab)*vivi.nbHabitations);
+           //dans ce tableau tu met tout a l'etat de terrain
+           habitations[vivi.nbHabitations].type=0;
+        }
+        else if(construire.type==3)
+        {
+            printf("electricite ou eau : ");
+            scanf("%d", &industrie.type);
+            if(industrie.type==4) {
+                demanderPlacement(&x, &y);              //mettre des esperluette pour envoyer l'adresse
+                confirmerPlacement(x, y, essai_matrice, construire.type + 1, &vivi);
+            }
+            else if(industrie.type==5)
+            {
+                demanderPlacement(&x,&y);              //mettre des esperluette pour envoyer l'adresse
+                confirmerPlacement(x, y, essai_matrice,construire.type+2, &vivi);
+            }
+        }
+        for( i=0; i<10; i++)
+        {
+            for( j=0; j<10; j++)
+            {
+                printf(" %d ", essai_matrice[i][j]);
+            }
+            printf("\n");
+        }
+        printf("CyberFlouz = %d\n", vivi.cyberFlouz);
+        printf("Habitations = %d\n", vivi.nbHabitations);
+        for(i=0; i<vivi.nbHabitations;i++)
+        {
+            printf("%d", habitations[vivi.nbHabitations].type);
+        }
+
+    }while(construire.type!=0 || industrie.type!=0);
+    return 0;
+}
